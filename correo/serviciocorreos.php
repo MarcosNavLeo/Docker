@@ -3,14 +3,12 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 require "vendor/autoload.php";
 
-use GuzzleHttp\Client;
 
 class serviciocorreos
 {
     
-    public function enviarCorreoConAdjunto($correo)
+    public function enviarCorreoConAdjunto($correo,$pdf)
     {
-        $client = new Client(); 
         $mail = new PHPMailer();
         $mail->IsSMTP();
         $mail->SMTPDebug = 0;
@@ -27,9 +25,7 @@ class serviciocorreos
         $address = $correo;
         $mail->AddAddress($address, "Test");
 
-        $pdfResponse = $client->request('GET', 'http://cestero/apipdf.php');
-        $pdfContent = $pdfResponse->getBody();
-        file_put_contents('archivo.pdf', $pdfContent);
+        file_put_contents('archivo.pdf', $pdf);
         // Adjuntar el archivo
         $mail->addAttachment('archivo.pdf');
 

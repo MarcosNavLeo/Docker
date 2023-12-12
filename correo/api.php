@@ -22,10 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['nombre'])) {
         if ($stmt->rowCount() > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $para = $row['email'];
+            $cesta = $row['tipo_Cesta'];
+
+            if ($cesta == "con") {
+                $tiene = true;
+            } else {
+                $tiene = false;
+            }
+        
+            $pdf = file_get_contents('http://cestero/apiPdf.php?tiene=' . $tiene);
 
             if (!empty($para)) {
                 $servicioCorreos = new ServicioCorreos();
-                $resultado = $servicioCorreos->enviarCorreoConAdjunto($para);
+                $resultado = $servicioCorreos->enviarCorreoConAdjunto($para,$pdf);
 
                 echo json_encode($resultado);
             } else {

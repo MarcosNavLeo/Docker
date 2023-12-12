@@ -2,41 +2,44 @@
 require_once __DIR__ . '/vendor/autoload.php';
 use Dompdf\Dompdf;
 class generarpdf{
-    public function generapdf($tipo){
-        $dompdf = new Dompdf();
-        
-        if ($tipo === 'con') {
+    public function generarPdf($tiene)
+    {
+        if ($tiene) {
             $html = '
             <html>
             <head>
-                <title>Ejemplo de PDF con cesta</title>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
             </head>
             <body>
-                <h1>Ejemplo de PDF con cesta</h1>
+            <dl>
+            <h2>ENHORABUENA GANASTE EL JAMON</h2>
+            <dd><img src="cestero/todos/jamon-iberico-bellota-.jpg" width="100px" height="100px"></dd>
+            </dl>
             </body>
-            </html>
-            ';
-        } elseif ($tipo === 'sin') {
-            $html = '
-            <html>
-            <head>
-                <title>Ejemplo de PDF sin cesta</title>
-            </head>
-            <body>
-                <h1>Ejemplo de PDF sin cesta</h1>
-            </body>
-            </html>
-            ';
+            </html>';
         } else {
-            // Manejar otros tipos o casos
-            return null;
-        }
-        
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-        $pdfOutput = $dompdf->output(); // Obtiene el contenido del PDF
+            $html = '
+        <html>
+        <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        </head>
+        <body>
+        <dl>
+        <dd>NO TIENES Jamón Pata Negra</dd>
+        </dl>
+        </body>
+        </html>';
 
-        return $pdfOutput;
+        }
+
+        $mipdf = new Dompdf();
+        $mipdf->getOptions()->setChroot($_SERVER['DOCUMENT_ROOT'].'\Docker\cestero\imagenes');
+        $mipdf->setpaper("A4", "portrait");
+        $mipdf->loadhtml($html);
+        $mipdf->render();
+        $pdf = $mipdf->output();
+        $filename = "fichero.pdf";
+        file_put_contents($filename, $pdf);
+        return $pdf;
     }
 }
