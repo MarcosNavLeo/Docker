@@ -33,7 +33,6 @@ class generarpdf{
         }
 
         $mipdf = new Dompdf();
-        $mipdf->getOptions()->setChroot($_SERVER['DOCUMENT_ROOT'].'\Docker\cestero\imagenes');
         $mipdf->setpaper("A4", "portrait");
         $mipdf->loadhtml($html);
         $mipdf->render();
