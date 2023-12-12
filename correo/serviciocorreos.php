@@ -8,7 +8,7 @@ use GuzzleHttp\Client;
 class serviciocorreos
 {
     
-    public function enviarCorreoConAdjunto($correo, $asunto, $mensaje)
+    public function enviarCorreoConAdjunto($correo)
     {
         $client = new Client(); 
         $mail = new PHPMailer();
@@ -21,8 +21,8 @@ class serviciocorreos
         $mail->Username = "mnavleo2312@g.educaand.es";
         $mail->Password = "uwml cmga luyd htpf";
         $mail->SetFrom('mnavleo2312@g.educaand.es', 'Test');
-        $mail->Subject = $asunto;
-        $html_message = $mensaje;
+        $mail->Subject = "Hola";
+        $html_message = "Su cesta de navidad ha sido enviada";
         $mail->MsgHTML($html_message);
         $address = $correo;
         $mail->AddAddress($address, "Test");

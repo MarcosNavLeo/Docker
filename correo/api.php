@@ -2,33 +2,37 @@
 require_once 'vendor/autoload.php';
 require_once 'serviciocorreos.php';
 
-try {
-    $conn = new PDO("mysql:host=datos;dbname=ServicioCorreo", "root", "1234");
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    // Consulta SQL para obtener correos de la tabla emails
-    $stmt = $conn->query("SELECT para, asunto, mensaje FROM emails WHERE enviado = 0");
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $nombre = $_POST['nombre'];
+        $conn = new PDO("mysql:host=datos;dbname=ServicioCorreo", "root", "1234");
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $servicioCorreos = new ServicioCorreos();
+        // Consulta SQL para obtener el correo asociado al nombre
+        $stmt = $conn->prepare("SELECT email FROM emails WHERE nombre = :nombre");
+        $stmt->bindParam(':nombre', $nombre);
+        $stmt->execute();
 
-    // Iterar sobre los resultados y enviar correos
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $para = $row['para'];
-        $asunto = $row['asunto'];
-        $mensaje = $row['mensaje'];
-        // Enviar el correo utilizando la clase ServicioCorreos
-        $resultado = $servicioCorreos->enviarCorreoConAdjunto($para, $asunto, $mensaje);
+        // Verificar si se encontró el nombre en la base de datos
+        if ($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $correoDestino = $row['email'];
 
-        // Actualizar el estado de enviado a 1 si el correo se envió correctamente
-        if ($resultado) {
-            $stmtUpdate = $conn->prepare("UPDATE emails SET enviado = 1 WHERE id = :id");
-            $stmtUpdate->bindParam(':id', $id);
-            $stmtUpdate->execute();
+            echo "<h1>El nombre $nombre está en la base de datos</h1>";
+
+            $servicioCorreos = new ServicioCorreos();
+            $resultado = $servicioCorreos->enviarCorreoConAdjunto($correoDestino);
+
+            if ($resultado) {
+                echo "<p>Correo enviado correctamente a $correoDestino</p>";
+            } else {
+                echo "<p>Error al enviar el correo</p>";
+            }
+        } else {
+            echo "<h1>El nombre $nombre no está en la base de datos</h1>";
         }
-        // Imprimir el resultado
-        echo json_encode($resultado);
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
     }
-} catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
 }
-
-$conn = null; 
+?>

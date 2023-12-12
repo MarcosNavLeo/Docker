@@ -6,10 +6,23 @@
     <title>OJALA</title>
 </head>
 <body>
-    <form method="post" action="../correo/api.php">
+    <?php
+    use GuzzleHttp\Client;
+    require_once 'vendor/autoload.php';
+    if(isset($_POST['nombre'])){
+        $nombre = $_POST['nombre'];
+
+        $client=new client();
+        $api_url = "http://correo/api.php";
+        $response = $client->request('GET', $api_url);
+        echo $response->getBody();
+    }
+    ?>
+    <form method="post" action="">
         <input type="text" placeholder="NOMBRE" name="nombre">
         <button type="submit">Ojalá</button>
     </form>
 </body>
 </html>
+
 
