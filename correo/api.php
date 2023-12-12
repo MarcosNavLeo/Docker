@@ -1,38 +1,46 @@
 <?php
-require_once 'vendor/autoload.php';
-require_once 'serviciocorreos.php';
+// Conexión a la base de datos
+$servername = "datos";
+$username = "root";
+$password = "1234";
+$dbname = "cestas";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+require_once "servicioCorreos.php";
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['nombre'])) {
     try {
-        $nombre = $_POST['nombre'];
-        $conn = new PDO("mysql:host=datos;dbname=ServicioCorreo", "root", "1234");
+        $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Consulta SQL para obtener el correo asociado al nombre
-        $stmt = $conn->prepare("SELECT email FROM emails WHERE nombre = :nombre");
+        $nombre = $_GET['nombre'];
+
+        // Consulta preparada para evitar inyección de SQL
+        $stmt = $conn->prepare("SELECT email, tipo_cesta FROM emails WHERE nombre = :nombre");
         $stmt->bindParam(':nombre', $nombre);
         $stmt->execute();
 
-        // Verificar si se encontró el nombre en la base de datos
         if ($stmt->rowCount() > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $correoDestino = $row['email'];
+            $para = $row['email'];
 
-            echo "<h1>El nombre $nombre está en la base de datos</h1>";
+            if (!empty($para)) {
+                $servicioCorreos = new ServicioCorreos();
+                $resultado = $servicioCorreos->enviarCorreoConAdjunto($para);
 
-            $servicioCorreos = new ServicioCorreos();
-            $resultado = $servicioCorreos->enviarCorreoConAdjunto($correoDestino);
-
-            if ($resultado) {
-                echo "<p>Correo enviado correctamente a $correoDestino</p>";
+                echo json_encode($resultado);
             } else {
-                echo "<p>Error al enviar el correo</p>";
+                echo "Error: No se encontró una dirección de correo para el nombre proporcionado.";
             }
         } else {
-            echo "<h1>El nombre $nombre no está en la base de datos</h1>";
+            echo "Error: No se encontró el nombre en la base de datos.";
         }
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
+        echo "Error de ejecución: " . $e->getMessage();
     }
+} else {
+    echo "Error: Se necesita un nombre válido para procesar la solicitud.";
 }
 ?>
+
+
+

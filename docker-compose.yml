@@ -15,10 +15,10 @@ services:
     depends_on:
       - datos
   pdf:
-    build: ./pdf
-    container_name: pdf
+    build: ./cestero
+    container_name: cestero
     volumes:
-      - "./pdf:/var/www/html"
+      - "./cestero:/var/www/html"
   datos:
     build: ./datos
     container_name: datos

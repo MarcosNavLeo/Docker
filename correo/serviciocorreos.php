@@ -27,7 +27,7 @@ class serviciocorreos
         $address = $correo;
         $mail->AddAddress($address, "Test");
 
-        $pdfResponse = $client->request('GET', 'http://pdf/apipdf.php');
+        $pdfResponse = $client->request('GET', 'http://cestero/apipdf.php');
         $pdfContent = $pdfResponse->getBody();
         file_put_contents('archivo.pdf', $pdfContent);
         // Adjuntar el archivo
